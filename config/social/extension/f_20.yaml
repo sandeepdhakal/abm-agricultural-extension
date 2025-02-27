@@ -1,0 +1,6 @@
+- num_ext_officers: 1
+  interaction_policy:
+    _target_: model.agents.FocusedInteraction
+    _partial_: true
+    percent_nodes: 20
+    time_per_node: 0.5

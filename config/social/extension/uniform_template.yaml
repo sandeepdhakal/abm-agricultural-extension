@@ -1,0 +1,6 @@
+- num_ext_officers: 1
+  interaction_policy: 
+    _target_: dt.agents.UniformInteraction
+    _partial_: true
+    time_per_node: 0.3
+    percent_nodes: 20

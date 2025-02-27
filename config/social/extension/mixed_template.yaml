@@ -1,0 +1,15 @@
+- num_ext_officers: 1
+  interaction_policy:
+    _target_: dt.agents.DynamicInteraction
+    _partial_: true
+    option1:
+      _target_: dt.agents.UniformInteraction
+      _partial_: true
+      percent_nodes: 40
+      time_per_node: 0.3
+    option2:
+      _target_: dt.agents.FocusedInteraction
+      _partial_: true
+      percent_nodes: 20
+      time_per_node: 0.5
+    percent_threshold: 40

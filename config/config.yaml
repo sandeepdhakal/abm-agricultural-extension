@@ -1,0 +1,48 @@
+# simulation dates
+start_date: 2022-01-01
+end_date: 2022-01-31
+
+input_dir: input
+configurator: configuration
+gis_file: n20_m2
+seed: 10_000
+
+grower:
+  control_preference_distribution:
+    - control_preference:
+        pest_name: rgb
+        control_name: Biocontrol
+        preference: 0.2
+      grower_proportion: 100
+  risk_aversion: 5
+
+social:
+  gif: 7
+  social_network: False
+  spatial_network: True
+
+defaults:
+  - social/extension: f_20
+  - social/learning: most_common
+  - _self_
+  - override hydra/launcher: joblib
+
+hydra:
+  mode: MULTIRUN
+  sweeper:
+    params:
+      social/extension: f_20
+      social.learning.lw: 0.5
+      social.gif: choice(7, 15)
+      gis_file: n20_m2
+      seed: range(10_000,21_000,10_000)
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.override_dirname}/seed=${seed}
+  launcher:
+    n_jobs: 10
+  job:
+    config:
+      override_dirname:
+        exclude_keys:
+          - seed
