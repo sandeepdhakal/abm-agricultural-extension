@@ -1,9 +1,9 @@
-"""Agents for the digital twin simulation."""
+"""Agents for the simulation."""
 
 from .base import (
     Agent,
     NotASpatialObjectError,
-    NotAssignedToAnyDigitalTwinError,
+    NotAssignedToAnyModelError,
 )
 from .extension import (
     ExtensionOfficer,
@@ -24,5 +24,5 @@ __all__ = [
     FocusedInteraction,
     UniformInteraction,
     NotASpatialObjectError,
-    NotAssignedToAnyDigitalTwinError,
+    NotAssignedToAnyModelError,
 ]

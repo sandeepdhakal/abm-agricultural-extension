@@ -14,19 +14,19 @@ class NotASpatialObjectError(Exception):
         super().__init__(message)
 
 
-class NotAssignedToAnyDigitalTwinError(Exception):
-    """Raised when an agent action requires a ditital twin but it its missing."""
+class NotAssignedToAnyModelError(Exception):
+    """Raised when an agent action requires a model but it its missing."""
 
     def __init__(
         self: Self,
-        message: str = "The agent does not belong to any digital twin yet.",
+        message: str = "The agent does not belong to any model yet.",
     ) -> None:
-        """Init NotAssignedToAnyDigitalTwinError with `message`."""
+        """Init NotAssignedToAnyModelError with `message`."""
         super().__init__(message)
 
 
 class Agent:
-    """Base agent for the DT."""
+    """Base agent for the model."""
 
     def __init__(self: Self, is_spatial: bool = False) -> None:
         """Init an abstract Agent object.

@@ -2,7 +2,7 @@
 
 This simulation does the following:
     - reads a config file
-    - create a DT based on the config file
+    - create a model based on the config file
     - create pest models as specified by a trap observations file
     - simulation the pest population models and the growers' management actions
 """
@@ -34,8 +34,8 @@ cs.store(name="base_config", node=Config)
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
 def ipm_sim(cfg: Config) -> Optional[Model]:
-    """Read IPM simulation config from the `cfg`."""
-    setup_logger("dt_simulation.log")
+    """Read simulation config from the `cfg`."""
+    setup_logger("model_simulation.log")
 
     # set the random seed
     random.seed(cfg.seed)
@@ -54,54 +54,54 @@ def ipm_sim(cfg: Config) -> Optional[Model]:
         )
         return None
 
-    dt = configurator.configure_dt(gdf, cfg, verbose=False)
-    # log_dt_info(dt)
+    model = configurator.configure_model(gdf, cfg, verbose=False)
+    log_model_info(model)
 
     end_date = date.fromisoformat(cfg["end_date"])
-    run_simulation(dt, end_date)
+    run_simulation(model, end_date)
 
 
-def log_dt_info(dt: Model) -> None:
-    """Log basic information about the digital twin."""
-    logger.info("Digital twin created and configured.")
+def log_model_info(model: Model) -> None:
+    """Log basic information about the model."""
+    logger.info("Model created and configured.")
 
 
-def run_simulation(dt: Model, end_date: date) -> None:
-    """Simulate the DT `dt` for `timestep` timesteps."""
+def run_simulation(model: Model, end_date: date) -> None:
+    """Simulate the `model` for `timestep` timesteps."""
     # logger.info(
-    #     f"Simulation duration: {dt.start_date}" f" - {end_date}",
+    #     f"Simulation duration: {model.start_date}" f" - {end_date}",
     # )
 
     # setup learning
-    int_freq = dt.cfg["social"]["gif"]
+    int_freq = model.cfg["social"]["gif"]
     learn_method = _learning_method(
-        dt.cfg["social"]["learning"]["social_learning_method"],
+        model.cfg["social"]["learning"]["social_learning_method"],
     )
 
-    while dt.date <= end_date:
+    while model.date <= end_date:
         # ask all agents and sub-models to update themselves
-        dt.update()
+        model.update()
 
         # learning
-        if dt.timestep % int_freq == 0:
-            learn_from_peers(dt, learn_method)
+        if model.timestep % int_freq == 0:
+            learn_from_peers(model, learn_method)
 
-        # prepare the DT for the next timestep
-        dt.step()
+        # prepare the model for the next timestep
+        model.step()
 
         # log grower data
-        log_grower_data(dt)
+        log_grower_data(model)
 
     logger.info("Simulation completed!!")
-    save_dt_data(dt)
+    save_model_data(model)
 
 
-def log_grower_data(dt: Model) -> None:
-    """Log grower's data in the `dt`."""
-    ctrl_method = dt.available_pest_controls[0]
+def log_grower_data(model: Model) -> None:
+    """Log grower's data in the `model`."""
+    ctrl_method = model.available_pest_controls[0]
     rows = [
-        (dt.timestep, g.unique_id, g.control_method_preference[ctrl_method])
-        for g in dt.agents(agent_type=Grower)
+        (model.timestep, g.unique_id, g.control_method_preference[ctrl_method])
+        for g in model.agents(agent_type=Grower)
     ]
     dtypes = {
         "timestep": "uint16",
@@ -113,7 +113,7 @@ def log_grower_data(dt: Model) -> None:
         .astype(dtypes)
         .set_index(["grower_id", "timestep"])
     )
-    dt.data["grower"] = pd.concat([dt.data["grower"], df])
+    model.data["grower"] = pd.concat([model.data["grower"], df])
 
 
 def setup_logger(logfile: str) -> None:
@@ -127,28 +127,28 @@ def setup_logger(logfile: str) -> None:
     # logging.getLogger("").addHandler(console)
 
 
-def save_dt_data(dt: Model) -> None:
-    """Write the DT data to files."""
+def save_model_data(model: Model) -> None:
+    """Write the model data to files."""
     OUTPUT_DIR = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
 
     opts = {"compression": "brotli"}
 
     # growers' pest prefs data
-    dt.data["grower"].reorder_levels(["timestep", "grower_id"]).to_parquet(
-        f"{OUTPUT_DIR}/dt_growers.parquet",
+    model.data["grower"].reorder_levels(["timestep", "grower_id"]).to_parquet(
+        f"{OUTPUT_DIR}/model_growers.parquet",
         **opts,
     )
 
 
-def learn_from_peers(dt: Model, learning_helper: partial[list[float]]) -> None:
+def learn_from_peers(model: Model, learning_helper: partial[list[float]]) -> None:
     """Implementation of peer learning of pest control preferences for growers."""
-    learn_weight = dt.cfg["social"]["learning"]["lw"]
+    learn_weight = model.cfg["social"]["learning"]["lw"]
 
-    for g in dt.agents(agent_type=Grower):
+    for g in model.agents(agent_type=Grower):
         others_prefs = np.array(
             [
                 [ng.control_method_preference.get(k, 0) for ng in g.connections]
-                for k in dt.available_pest_controls
+                for k in model.available_pest_controls
             ],
         )
         prefs_to_learn = learning_helper(others_prefs)

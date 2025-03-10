@@ -1,1 +1,1 @@
-"""The digital twin for integrated pest management moduel."""
+"""The simulation model for agricultural extension experiments."""

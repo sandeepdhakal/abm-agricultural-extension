@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Module with spatial objects for the digital twin."""
+"""Module with spatial objects for the model."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, Self
 import pandas as pd
 
 from ..pest_control import NO_CONTROL, PestControl
-from .base import NotAssignedToAnyDigitalTwinError
+from .base import NotAssignedToAnyModelError
 
 if TYPE_CHECKING:
     from .grower import Grower
@@ -30,7 +30,7 @@ class SpatialObject:
 
 
 class Field(SpatialObject):
-    """A class to represent a field in the DT.
+    """A class to represent a field in the model.
 
     Only one crop can be grown in a field at any time. However, depending on the
     seasons, market prices, water availability or other considerations, different crops
@@ -82,13 +82,13 @@ class Field(SpatialObject):
         self.ts_since_control_method_change += 1
 
     def log(self: Self) -> None:
-        """Log this field's information with the digital twin's dataframe.
+        """Log this field's information with the model's dataframe.
 
         The following information is logged: the crop grown, and the control method used
         (else None).
         """
-        if self.dt is None:
-            raise NotAssignedToAnyDigitalTwinError()
+        if self.model is None:
+            raise NotAssignedToAnyModelError()
 
         cols = ["crop", "control_method"]
         values = [
@@ -96,7 +96,9 @@ class Field(SpatialObject):
             None if self.control_method is None else self.control_method.name,
         ]
 
-        self.dt.data["field"].loc[(self.dt.timestep, self.spatial_id), cols] = values
+        self.model.data["field"].loc[(self.model.timestep, self.spatial_id), cols] = (
+            values
+        )
 
     def history(
         self: Self,
@@ -118,26 +120,26 @@ class Field(SpatialObject):
         Returns:
             A pandas dataframe with the 'timestep' as the index.
         """
-        if self.dt is None:
-            raise NotAssignedToAnyDigitalTwinError()
+        if self.model is None:
+            raise NotAssignedToAnyModelError()
 
         if end_timestep is not None and end_timestep < start_timestep:
             start_timestep, end_timestep = end_timestep, start_timestep
 
         timestep_slice = slice(start_timestep, end_timestep)
         field_df = (
-            self.dt.data["field"]
+            self.model.data["field"]
             .loc[(timestep_slice, self.spatial_id),]
             .droplevel("spatial_id")
         )
 
         risk_df = (
-            self.dt.data["pest_risk"]
+            self.model.data["pest_risk"]
             .loc[(timestep_slice, self.spatial_id),]
             .droplevel("spatial_id")
         )
         pest_df = (
-            self.dt.data["pest_pop"]
+            self.model.data["pest_pop"]
             .loc[(timestep_slice, self.spatial_id), (slice(None), "adult")]
             .droplevel("spatial_id")
         )

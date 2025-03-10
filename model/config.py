@@ -62,7 +62,7 @@ class ExtensionConfig:
 
     num_ext_officers: int = 1
 
-    # we'll instantiate ipm_dt.agents.InteractionPolicy objects using
+    # we'll instantiate model.agents.InteractionPolicy objects using
     # hydra's hydra.utils.instantiate method.
     # see https://hydra.cc/docs/1.2/advanced/instantiate_objects/overview/
     interaction_policy: Dict[str, Any] = MISSING
@@ -97,9 +97,9 @@ class GeoConfig:
 
 @dataclass
 class Config:
-    """Config scheme for DT simulation."""
+    """Config scheme for model simulation."""
 
-    # config for setting up the DT
+    # config for setting up the model
     input_dir: str = "./input"
     start_date: str = "${now:%Y-%m-%d}"
     end_date: str = "${now:%Y-%m-%d}"

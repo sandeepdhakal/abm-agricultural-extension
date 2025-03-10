@@ -2,7 +2,7 @@
 """Scenario management.
 
 Using scenarios is a convenient way of passing large volumes of contextual information
-to digital twin models.
+to the models.
 """
 
 from calendar import monthrange
@@ -18,7 +18,7 @@ EPSG_GEO = 4283
 
 
 class Scenario:
-    """Class to collect parametersvalues and contextual information for a digital twin.
+    """Class to collect parametersvalues and contextual information for a model.
 
     Must include a shapefile for spatial information. The contextual information is
     mplemented using several pandas dataframe, where the columns are the values and
@@ -44,7 +44,7 @@ class Scenario:
                 timestep.
         """
         self.timestep: int = 0
-        """The current timestep correspondind to the associated DT."""
+        """The current timestep correspondind to the associated model."""
 
         self.data = {}  # empty dict of scenario data
         if isinstance(timeseries_data, dict):
