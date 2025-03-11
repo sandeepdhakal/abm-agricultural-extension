@@ -19,3 +19,8 @@ dependencies = [
     "shortuuid>=1.0.13",
     "sortedcontainers>=2.4.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
