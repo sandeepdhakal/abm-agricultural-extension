@@ -26,7 +26,7 @@ class Model:
 
         Args:
             gdf: The geodataframe for the model's geography.
-            scenario: A scenario object holdinng the contextual information for the model.
+            scenario: A scenario object holding the contextual info for the model.
             start_date: The start date for the model.
         """
         self.running: bool = False
@@ -60,7 +60,7 @@ class Model:
 
     def _set_data_structures(self: Self) -> None:
         # set data structures
-        self.data: dict[str, Any] = {}  # TODO: move data outside of the model class
+        self.data: dict[str, Any] = {}
         """Data releated to the model."""
 
         self.data["field"] = pd.DataFrame(columns=["crop", "control_method", "awm"])
@@ -160,7 +160,6 @@ class Model:
             else list(self._spatial_objects.values())
         )
 
-        # TODO: return a generator
         return (
             filtered_objs
             if ids is None
@@ -203,9 +202,8 @@ class Model:
 
         All submodels must be added using this method. The submodel must implement the
         `step` method and a `NotImplementedError` will be thrown otherwise. This method
-        will link the model to the submodel by assigning the model
-        to the submodel's `model` attribute. This allows the submodel to reference to the
-        parent model.
+        will link the model to the submodel by assigning the model to the submodel's
+        `model` attribute. This allows the submodel to reference to the parent model.
 
         Args:
             name: The name of the submodel. Must be unique, otherwise an error will be
